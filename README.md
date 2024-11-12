@@ -7,4 +7,4 @@
 בר אליוף
 רון שוסטר
 
-קישור לדף המכיל את הרכיבים הרשמיים : (formal-elements.md)[https://github.com/RooMates-Game/SignMeUp/blob/main/formal-elements.md]
+קישור לדף המכיל את הרכיבים הרשמיים : [https://github.com/RooMates-Game/SignMeUp/blob/main/formal-elements.md]
