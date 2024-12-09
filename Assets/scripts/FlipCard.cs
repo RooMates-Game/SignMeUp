@@ -1,51 +1,66 @@
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
-public class CardFlip : MonoBehaviour
+public class FlipCard : MonoBehaviour
 {
-    [SerializeField] private GameObject frontFace; // Assign the front face (Image GameObject)
-    [SerializeField] private GameObject backFace;  // Assign the back face (SquareBackCover GameObject)
-    private bool isFlipped = false; // Tracks if the card is flipped
-    private bool isFlipping = false; // Prevents multiple flips at once
-    [SerializeField] private float flipSpeed = 5f; // Speed of the flip animation
+    private SpriteRenderer rend;
 
-    void OnMouseDown()
+    [SerializeField]
+    private Sprite faceSprite, backSprite;
+
+    private bool coroutineAllowed, facedUp;
+
+    // Start is called before the first frame update
+    void Start()
     {
-        if (!isFlipping) // Prevent double-clicking issues
+        rend = GetComponent<SpriteRenderer>();
+        rend.sprite = backSprite;
+        coroutineAllowed = true;
+        facedUp = false;
+    }
+
+    private void OnMouseDown()
+    {
+        Debug.Log("click");
+        if (coroutineAllowed)
         {
-            StartCoroutine(FlipCard());
+            StartCoroutine(RotateCard());
         }
     }
 
-    private System.Collections.IEnumerator FlipCard()
+    private IEnumerator RotateCard()
     {
-        isFlipping = true;
+        coroutineAllowed = false;
 
-        // Initially set visibility based on the current state
-        frontFace.SetActive(!isFlipped);
-        backFace.SetActive(isFlipped);
-
-        // Rotate the card 180 degrees over time
-        float rotationY = 0f;
-        while (rotationY < 180f)
+        if (!facedUp)
         {
-            float step = flipSpeed * Time.deltaTime * 90f; // Control rotation speed
-            transform.Rotate(0, step, 0);  // Rotate the whole card around the Y-axis
-            rotationY += step;
-
-            // Swap visibility at the halfway point (90 degrees)
-            if (rotationY >= 90f && rotationY - step < 90f)
+            for (float i = 0f; i <= 180f; i += 10f)
             {
-                // Swap the front and back faces based on the flipped state
-                frontFace.SetActive(isFlipped);  // Show the back face when flipped
-                backFace.SetActive(!isFlipped);  // Hide the front face when flipped
+                transform.rotation = Quaternion.Euler(0f, i, 0f);
+                if (i == 90f)
+                {
+                    rend.sprite = faceSprite;
+                }
+                yield return new WaitForSeconds(0.01f);
             }
-
-            yield return null;  // Wait until the next frame before continuing
         }
 
-        // Reset rotation and flip state
-        transform.eulerAngles = new Vector3(0, isFlipped ? 180 : 0, 0);
-        isFlipped = !isFlipped;  // Toggle the flip state
-        isFlipping = false;  // Allow the next flip
+        else if (facedUp)
+        {
+            for (float i = 180f; i >= 0f; i -= 10f)
+            {
+                transform.rotation = Quaternion.Euler(0f, i, 0f);
+                if (i == 90f)
+                {
+                    rend.sprite = backSprite;
+                }
+                yield return new WaitForSeconds(0.01f);
+            }
+        }
+
+        coroutineAllowed = true;
+
+        facedUp = !facedUp;
     }
 }
