@@ -103,6 +103,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   faceSprite: {fileID: 0}
   backSprite: {fileID: 4443714562347759535, guid: d87f56340b3d8a7438d02e67092980f0, type: 3}
+  delayMatch: 1
+  delayNoMatch: 0.01
 --- !u!61 &4097715872134785417
 BoxCollider2D:
   m_ObjectHideFlags: 0
