@@ -9,18 +9,18 @@ public class FlipCard : MonoBehaviour
     private Sprite faceSprite, backSprite;
     [SerializeField] private float delayMatch, delayNoMatch;
 
-    private bool coroutineAllowed, facedUp;
+    private bool coroutineAllowed, facedUp, isLocked;
 
     // Static variable to track the first selected card
     public static GameObject selectedCard;
 
-    // Start is called before the first frame update
     void Start()
     {
         rend = GetComponent<SpriteRenderer>();
         rend.sprite = backSprite;
         coroutineAllowed = true;
         facedUp = false;
+        isLocked = false;
 
         // Ensure the face sprite is scaled properly
         AdjustFaceSpriteScale();
@@ -28,35 +28,38 @@ public class FlipCard : MonoBehaviour
 
     private void OnMouseDown()
     {
-        if (coroutineAllowed)
-        {
-            StartCoroutine(RotateCard());
+        // Ignore clicks if the card is locked or a coroutine is running
+        if (isLocked || !coroutineAllowed) return;
 
-            if (!facedUp && selectedCard == null)
+        StartCoroutine(RotateCard());
+
+        if (!facedUp && selectedCard == null)
+        {
+            // First card selected
+            selectedCard = this.gameObject;
+            isLocked = true; // Lock this card so it cannot be clicked again
+        }
+        else if (!facedUp && selectedCard != null)
+        {
+            // Second card selected
+            FlipCard firstCardScript = selectedCard.GetComponent<FlipCard>();
+
+            if (selectedCard.CompareTag(this.tag))
             {
-                // First card selected
-                selectedCard = this.gameObject;
+                // Cards match, wait before destroying both
+                Debug.Log("Match Found!");
+                StartCoroutine(WaitBeforeDestroy(selectedCard, this.gameObject, delayMatch));
             }
-            else if (!facedUp && selectedCard != null)
+            else
             {
-                // Second card selected
-                if (selectedCard.CompareTag(this.tag))
-                {
-                    // Cards match, wait before destroying both
-                    Debug.Log("Match Found!");
-                    
-                    // Wait for a few seconds before destroying the cards
-                    StartCoroutine(WaitBeforeDestroy(selectedCard, this.gameObject, delayMatch));
-                }
-                else
-                {
-                    // No match, reset both cards
-                    Debug.Log("No Match!");
-                    StartCoroutine(ResetCard(selectedCard));
-                    StartCoroutine(ResetCard(this.gameObject));
-                }
-                selectedCard = null; // Reset for the next pair
+                // No match, reset both cards
+                Debug.Log("No Match!");
+                StartCoroutine(ResetCard(selectedCard));
+                StartCoroutine(ResetCard(this.gameObject));
             }
+
+            firstCardScript.isLocked = false; // Unlock the first card
+            selectedCard = null; // Reset for the next pair
         }
     }
 
@@ -102,6 +105,7 @@ public class FlipCard : MonoBehaviour
         if (cardScript != null)
         {
             cardScript.StartCoroutine(cardScript.RotateCard());
+            cardScript.isLocked = false; // Unlock the card so it can be selected again
         }
     }
 
