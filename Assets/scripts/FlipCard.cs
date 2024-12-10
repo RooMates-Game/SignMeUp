@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class FlipCard : MonoBehaviour
@@ -18,11 +17,13 @@ public class FlipCard : MonoBehaviour
         rend.sprite = backSprite;
         coroutineAllowed = true;
         facedUp = false;
+
+        // Ensure the face sprite is scaled properly
+        AdjustFaceSpriteScale();
     }
 
     private void OnMouseDown()
     {
-        Debug.Log("click");
         if (coroutineAllowed)
         {
             StartCoroutine(RotateCard());
@@ -45,7 +46,6 @@ public class FlipCard : MonoBehaviour
                 yield return new WaitForSeconds(0.01f);
             }
         }
-
         else if (facedUp)
         {
             for (float i = 180f; i >= 0f; i -= 10f)
@@ -60,7 +60,20 @@ public class FlipCard : MonoBehaviour
         }
 
         coroutineAllowed = true;
-
         facedUp = !facedUp;
+    }
+
+    private void AdjustFaceSpriteScale()
+    {
+        // Get the size of both sprites
+        Vector2 backSize = backSprite.bounds.size;
+        Vector2 faceSize = faceSprite.bounds.size;
+
+        // Calculate the scale adjustment to match backSprite
+        float scaleX = backSize.x / faceSize.x;
+        float scaleY = backSize.y / faceSize.y;
+
+        // Apply scale to the GameObject's transform
+        transform.localScale = new Vector3(scaleX * transform.localScale.x, scaleY * transform.localScale.y, transform.localScale.z);
     }
 }
