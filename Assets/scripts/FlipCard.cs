@@ -11,7 +11,7 @@ public class FlipCard : MonoBehaviour
 
     private bool coroutineAllowed, facedUp, isLocked;
 
-    // Static variable to track the first selected card
+    // Static variable to track the first selected card.
     public static GameObject selectedCard;
 
     void Start()
